@@ -1,0 +1,44 @@
+﻿@page "/DownloadYoutube"
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>DownloadYoutube</PageTitle>
+
+<h3>Download Youtube</h3>
+
+<input type="text" @bind="videoIdInput" placeholder="Id or URL" />
+
+<button onclick="@(() => DownloadAudioFile(videoIdInput))">Download</button>
+
+
+@code {
+    private string? videoIdInput{ get; set; }
+
+    private async Task DownloadAudioFile(string videoIdorURL)
+    {
+        string? videoId;
+        if (videoIdorURL.Length > 15)
+        {
+            var startIndex = videoIdorURL.IndexOf("v=")+2;
+            videoId = videoIdorURL.Substring(startIndex, 11);
+        }
+        else
+        {
+            videoId = videoIdorURL;
+        }
+        var response = await Http.GetAsync($"/api/DownloadYoutube/GetAudioFile/{videoId}");
+
+        var fileName = await Http.GetStringAsync($"/api/DownloadYoutube/GetVideoName/{videoId}");       
+
+        if (!response.IsSuccessStatusCode)
+        {
+            await JS.InvokeVoidAsync("alert", "File not found.");
+        }
+        else
+        {
+            var fileStream = response.Content.ReadAsStream();
+            using var streamRef = new DotNetStreamReference(stream: fileStream);
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName?.ToString() + ".mp4", streamRef);
+        }
+    }
+}

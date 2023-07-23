@@ -1,0 +1,44 @@
+﻿@page "/Todo"
+@inject HttpClient Http
+
+<h3>Todo</h3>
+
+@if (todos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>IsCompleted</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var todo in todos)
+            {
+                <tr>
+                    <td>@todo.Id</td>
+                    <td>@todo.Title</td>
+                    <td>@todo.IsCompleted</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private BlazorApp.Shared.Todo[]? todos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        todos = await Http.GetFromJsonAsync<BlazorApp.Shared.Todo[]>("api/Todo/all");
+    }
+
+
+
+}

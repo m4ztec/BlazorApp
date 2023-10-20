@@ -24,11 +24,10 @@ public class TodoController : ControllerBase
     {
         await _connection.OpenAsync();
 
-        var hi = await _connection.QueryAsync<Todo>("SELECT Id, Title, isCompleted FROM todo");
+        var hi = await _connection.QueryAsync<Todo>("SELECT \"Id\", \"Title\", \"Title\" FROM \"todo\"");
 
         await _connection.CloseAsync();
 
         return hi.ToArray();
     }
-
 }

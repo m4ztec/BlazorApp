@@ -16,9 +16,8 @@
     <ProjectReference Include="..\Shared\BlazorApp.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
+  <Target Name="CreateAppDataFolder" AfterTargets="AfterPublish">
+    <MakeDir Directories="$(PublishDir)Data" Condition="!Exists('$(PublishDir)Data')" /> 
+  </Target>
 
 </Project>

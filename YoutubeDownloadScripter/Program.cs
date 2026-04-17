@@ -4,9 +4,19 @@ using YoutubeExplode.Videos.Streams;
 using Microsoft.Extensions.Hosting;
 using RazorConsole.Core;
 using YoutubeDownloadScripter.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = Host.CreateDefaultBuilder(args)
     .UseRazorConsole<YoutubeDownloader>();
+
+builder.ConfigureServices(services =>
+{
+    services.Configure<ConsoleAppOptions>(options =>
+    {
+        options.AutoClearConsole = false;
+        options.EnableTerminalResizing = true;
+    });
+});
 
 var app = builder.Build();
 

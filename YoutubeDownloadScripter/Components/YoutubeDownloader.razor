@@ -7,38 +7,38 @@
 @if (Step == 1)
 {
     <Panel Title="Step 1: Select download type">
-        <Newline />
+        <Rows>
+            <Select Options="@(new string[] { "Single", "Playlist" })"
+                    TItem="string"
+                    Value="Selection"
+                    Expand="true"
+                    ValueChanged="OnSelectionChanged" />
 
-        <Select Options="@(new string[] { "Single", "Playlist" })"
-                TItem="string"
-                Value="Selection"
-                Expand="true"
-                ValueChanged="OnSelectionChanged" />
-
-        <Newline />
-        <Markup Content="Press Enter to continue" Foreground="@Color.Grey58" />
+            <Markup Content="Press Enter to continue" Foreground="@Color.Grey58" />
+        </Rows>
     </Panel>
 }
 
 @if (Step == 2)
 {
     <Panel Title="Step 2: Enter URL">
-        <Newline />
+        <Rows>
+            <TextInput Label="URL:"
+                    @bind-value="Url"
+                    OnSubmit="OnUrlSubmitted"/>
 
-        <TextInput Label="URL:"
-                   Value= "Url" 
-                   OnSubmit="OnUrlSubmitted" />
-
-        <Newline />
-        <Markup Content="Press Enter to continue" Foreground="@Color.Grey58" />
+            <Markup Content="Press Enter to continue" Foreground="@Color.Grey58" />
+        </Rows>
     </Panel>
 }
 
 @if (Step == 3)
 {
     <Panel Title="Step 3: Summary">
-        <Markup Content=$"Type: {Selection}" />
-        <Markup Content=$"URL: {Url}" />
+        <Rows>
+            <Markup Content=@($"Type: {Selection}") />
+            <Markup Content=@($"URL: {Url}") />
+        </Rows>
     </Panel>
 
     <Newline />
@@ -47,9 +47,8 @@
 
 @code {
     private int Step { get; set; } = 1;
-
     private string? Selection { get; set; }
-    private string Url { get; set; } = "";
+    private string Url = string.Empty;
 
     private void OnSelectionChanged(string value)
     {
@@ -60,9 +59,12 @@
     private void OnUrlSubmitted()
     {
         if (string.IsNullOrWhiteSpace(Url))
-            return;
+		{
+			return;
+		}   
 
-        NextStep();
+        Step++;
+        StateHasChanged();
     }
 
     private void NextStep()

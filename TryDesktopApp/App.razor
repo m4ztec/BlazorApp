@@ -1,0 +1,110 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.JSInterop
+@using YoutubeDownloadScripter.Services
+@inject YoutubeDownloadService YoutubeClient
+@inject IJSRuntime JSRuntime
+
+<h1>Music Downloader</h1>
+
+<EditForm Model="@Model" OnValidSubmit="Download">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="panel">
+        <label>Type</label>
+
+        <InputSelect @bind-Value="Model.Selection">
+            <option value="">-- choose --</option>
+            <option value="Single">Single</option>
+            <option value="Playlist">Playlist</option>
+        </InputSelect>
+    </div>
+
+    <div class="panel">
+        <label>URL</label>
+    </div>
+
+    <div class="panel">
+        <p><b>Type:</b> @Model.Selection</p>
+        <p><b>URL:</b> @Model.Url</p>
+
+        <div>
+            select folder to save to 
+            <InputFile webkitdirectory directory multiple />
+        </div>
+
+        <button type="submit" disabled="@IsDownloading">
+            @(IsDownloading ? "Downloading..." : "Download")
+        </button>
+
+        @if (!string.IsNullOrWhiteSpace(StatusMessage))
+        {
+            <p>@StatusMessage</p>
+        }
+    </div>
+    <div>
+    </div>
+</EditForm>
+<button @onclick="SelectFolder" webkitdirectory >GET path</button>
+<p>@OutputPath</p>
+
+@code {
+    private DownloadModel Model = new();
+    private string OutputPath = "selected-folder";
+
+    private bool IsDownloading;
+    private string? StatusMessage;
+
+    private async Task Download()
+    {
+        if (string.IsNullOrWhiteSpace(Model.Url) ||
+            string.IsNullOrWhiteSpace(Model.Selection))
+        {
+            return;
+        }
+
+        IsDownloading = true;
+        StatusMessage = null;
+
+        try
+        {
+            OutputPath = "selected-folder";
+
+            if (Model.Selection == "Single")
+            {
+                await YoutubeClient.GetSingleMusicAsync(Model.Url, OutputPath);
+            }
+            else if (Model.Selection == "Playlist")
+            {
+                await YoutubeClient.GetMusicInPlaylistAsync(Model.Url, OutputPath);
+            }
+
+            StatusMessage = "Download completed successfully.";
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Download failed: {ex.Message}";
+        }
+        finally
+        {
+            IsDownloading = false;
+        }
+    }
+
+    public async Task SelectFolder()
+    {
+        OutputPath = await JSRuntime.InvokeAsync<string>("selectFolder");
+    }
+
+
+    public class DownloadModel
+    {
+        [Required(ErrorMessage = "Please select Single or Playlist")]
+        public string? Selection { get; set; }
+
+        [Required(ErrorMessage = "URL is required")]
+        [Url(ErrorMessage = "Please enter a valid URL")]
+        public string? Url { get; set; }
+    }
+}

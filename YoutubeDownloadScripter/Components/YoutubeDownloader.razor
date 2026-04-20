@@ -1,5 +1,8 @@
-﻿@using RazorConsole.Components
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using RazorConsole.Components
 @using Spectre.Console
+@using YoutubeDownloadScripter.Services
+@inject YoutubeDownloadService YoutubeClient
 
 <Figlet Content="Music Downloader" />
 <Newline />
@@ -38,14 +41,17 @@
         <Rows>
             <Markup Content=@($"Type: {Selection}") />
             <Markup Content=@($"URL: {Url}") />
+
+            <Markup Content="Ready to download..." Foreground="@Color.Green" />
+            <TextButton Text="Download" OnClick="Download" />
+            <Markup Content="Press Enter to continue" Foreground="@Color.White" />
         </Rows>
     </Panel>
-
-    <Newline />
-    <Markup Content="Ready to download..." Foreground="@Color.Green" />
 }
 
 @code {
+
+    private string OutputPath { get; set; } = string.Empty;
     private int Step { get; set; } = 1;
     private string? Selection { get; set; }
     private string Url = string.Empty;
@@ -59,9 +65,9 @@
     private void OnUrlSubmitted()
     {
         if (string.IsNullOrWhiteSpace(Url))
-		{
-			return;
-		}   
+        {
+            return;
+        }   
 
         Step++;
         StateHasChanged();
@@ -71,5 +77,20 @@
     {
         if (Step < 3)
             Step++;
+    }
+
+    private async Task Download()
+    {
+        //open file explorer to select folder
+        OutputPath = "await AvaloniaFolderPicker.PickFolderAsync();";
+        if (Selection == "Single")
+        {
+            //download single video
+        }
+
+        if (Selection == "Playlist")
+        {
+            // download playlist
+        }
     }
 }
